@@ -1,0 +1,37 @@
+name: CodSpeed
+
+on:
+  push:
+    branches:
+      - "main" # or "master"
+  pull_request: # required to have reports on PRs
+  # `workflow_dispatch` allows CodSpeed to trigger backtest
+  # performance analysis in order to generate initial data.
+  workflow_dispatch:
+
+jobs:
+  benchmarks:
+    name: Run benchmarks
+    runs-on: codspeed-macro-staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+
+      - uses: moonrepo/setup-rust@v1
+        with:
+          cache-target: release
+      - name: "Install go-runner and codspeed"
+        run: |
+          cargo install --git https://github.com/CodSpeedHQ/codspeed-go --branch cod-1173-build-golang-tests-with-codspeed-instrumentation-in-runner
+          cargo install --git https://github.com/CodSpeedHQ/runner --branch cod-1208-run-golang-with-walltime-in-runner
+
+      - name: Run benchmarks
+        run: |
+          codspeed-go run --api-url https://gql.staging.preview.codspeed.io/ --upload-url https://api.staging.preview.codspeed.io/upload -- go test -bench=.
+
+    # TODO: Enable once runner version has been released
+    #   - name: Run benchmarks
+    #     uses: CodSpeedHQ/action@v3
+    #     with:
+    #       run: go test -bench=.
+    #       upload-url: https://api.staging.preview.codspeed.io/upload
