@@ -27,7 +27,7 @@ jobs:
 
       - name: Run benchmarks
         run: |
-          codspeed-go run --api-url https://gql.staging.preview.codspeed.io/ --upload-url https://api.staging.preview.codspeed.io/upload -- go test -bench=.
+          codspeed run --api-url https://gql.staging.preview.codspeed.io/ --upload-url https://api.staging.preview.codspeed.io/upload -- go test -bench=.
 
     # TODO: Enable once runner version has been released
     #   - name: Run benchmarks
